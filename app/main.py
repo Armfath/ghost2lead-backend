@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 from scalar_fastapi import get_scalar_api_reference
 
-from config.settings import settings
+from config.settings import app_settings
 
 app = FastAPI(
-    title=settings.APP_NAME,
+    title=app_settings.APP_NAME,
     docs_url=None,
-    redoc_url=None,
+    redoc_url=None, 
 )
 
 
@@ -19,5 +19,5 @@ async def health_check():
 def get_scalar_docs():
     return get_scalar_api_reference(
         openapi_url=app.openapi_url,
-        title="Shipment API",
+        title=app_settings.APP_NAME,
     )

@@ -16,4 +16,19 @@ class AppSettings(BaseSettings):
     model_config = _base_config
 
 
-settings = AppSettings()
+class DBSettings(BaseSettings):
+    DATABASE_USER: str
+    DATABASE_PASSWORD: str
+    DATABASE_SERVER: str
+    DATABASE_PORT: int = 5432
+    DATABASE_NAME: str
+
+    @property
+    def DATABASE_URL(self) -> str:
+        return f"postgresql+asyncpg://{self.DATABASE_USER}:{self.DATABASE_PASSWORD}@{self.DATABASE_SERVER}:{self.DATABASE_PORT}/{self.DATABASE_NAME}"
+
+    model_config = _base_config
+
+
+app_settings = AppSettings()
+db_settings = DBSettings()
