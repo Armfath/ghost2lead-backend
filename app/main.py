@@ -1,13 +1,16 @@
 from fastapi import FastAPI
 from scalar_fastapi import get_scalar_api_reference
 
+from app.core.exception_handlers import register_exception_handlers
 from config.settings import app_settings
 
 app = FastAPI(
     title=app_settings.APP_NAME,
     docs_url=None,
-    redoc_url=None, 
+    redoc_url=None,
 )
+
+register_exception_handlers(app)
 
 
 @app.get("/health")
