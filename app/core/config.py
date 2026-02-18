@@ -7,16 +7,14 @@ _base_config = SettingsConfigDict(
 )
 
 
-class AppSettings(BaseSettings):
+class Configs(BaseSettings):
+    # App settings
     APP_NAME: str = "Ghost2Lead"
     DEBUG: bool = False
     API_PREFIX: str = "/api"
-    API_VERSION: str = "v1"
+    API_V1: str = "/api/v1"
 
-    model_config = _base_config
-
-
-class DBSettings(BaseSettings):
+    # Database settings
     DATABASE_USER: str
     DATABASE_PASSWORD: str
     DATABASE_SERVER: str
@@ -29,6 +27,11 @@ class DBSettings(BaseSettings):
 
     model_config = _base_config
 
+    # IP encryption key
+    IP_ENCRYPTION_KEY: str
+    
+    # CORS settings
+    BACKEND_CORS_ORIGINS: list[str] | None = None
 
-app_settings = AppSettings()
-db_settings = DBSettings()
+
+configs = Configs()

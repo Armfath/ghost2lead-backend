@@ -2,10 +2,10 @@ from fastapi import FastAPI, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
+from app.core.config import configs
 from app.core.exceptions import APIException, ErrorCode
-from app.helpers.sanitize_header_value import sanitize_header_value
-from app.schemas.base import APIError
-from config.settings import app_settings
+from app.schemas.base_schema import APIError
+from app.util.normalize_text import normalize_text
 
 
 def register_exception_handlers(app: FastAPI):
@@ -31,8 +31,8 @@ def register_exception_handlers(app: FastAPI):
     async def generic_exception_handler(_, exc: Exception):
         error_message = f"{exc.__class__.__name__}: {exc}"
         headers = {}
-        if app_settings.DEBUG:
-            headers["X-Server-Error"] = sanitize_header_value(error_message)
+        if configs.DEBUG:
+            headers["X-Server-Error"] = normalize_text(error_message)
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             headers=headers,

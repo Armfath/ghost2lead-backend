@@ -2,6 +2,11 @@ from uuid import uuid4
 
 from sqlalchemy import Column, DateTime, func
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import DeclarativeBase
+
+
+class Base(DeclarativeBase):
+    pass
 
 
 class UUIDMixin:
@@ -26,3 +31,7 @@ class TimestampMixin:
         onupdate=func.now(),
         nullable=False,
     )
+
+
+class BaseModel(Base, UUIDMixin, TimestampMixin):
+    __abstract__ = True

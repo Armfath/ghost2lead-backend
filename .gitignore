@@ -33,3 +33,6 @@ postgres_data/
 
 # Cursor
 .cursor/
+
+# file history
+.history/

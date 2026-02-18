@@ -23,7 +23,7 @@ class APIException(Exception):
 class NotFoundError(APIException):
     status_code = status.HTTP_404_NOT_FOUND
 
-    def __init__(self, entity: str, identifier: int):
+    def __init__(self, entity: str, identifier: str | int | None):
         self.error_code = ErrorCode.NOT_FOUND
         self.message = f"{entity} with ID {identifier} not found"
 
