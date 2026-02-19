@@ -1,3 +1,4 @@
+from uuid import UUID
 from fastapi import APIRouter
 
 from app.util.api_response import to_paginated_success
@@ -25,3 +26,11 @@ async def get_leads(
 ):
     leads, total = await service.get_list(params.page, params.page_size)
     return to_paginated_success(leads, total, params.page, params.page_size)
+
+@router.get("/{lead_id}", response_model=APISuccess[LeadCreateResponse])
+async def get_lead(
+    lead_id: UUID,
+    service: LeadServiceDep,
+):
+    lead = await service.get_by_id(lead_id)
+    return APISuccess(data=lead)
