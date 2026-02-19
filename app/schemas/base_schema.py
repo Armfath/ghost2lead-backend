@@ -26,5 +26,21 @@ class APISuccess(BaseModel, Generic[T]):
     data: T
 
 
+class FindBase(BaseModel):
+    page: int
+    page_size: int
+
+
+class PaginationInfo(BaseModel):
+    page: int
+    page_size: int
+    total: int
+
+
+class PaginationResponse(BaseModel, Generic[T]):
+    items: list[T]
+    pagination: PaginationInfo
+
+
 class BlankResponse(BaseModel):
     pass

@@ -33,5 +33,11 @@ class Configs(BaseSettings):
     # CORS settings
     BACKEND_CORS_ORIGINS: list[str] | None = None
 
+    # Pagination settings
+    PAGE: int = 1
+    PAGE_SIZE: int = 10
+    PAGE_SIZE_MIN: int = 1
+    PAGE_SIZE_MAX: int = 100
+
 
 configs = Configs()

@@ -15,3 +15,6 @@ class BaseService(Generic[ModelType]):
 
     async def add(self, entity: ModelType) -> ModelType:
         return await self._repository.create(entity)
+
+    async def get_list(self, page: int, page_size: int) -> tuple[list[ModelType], int]:
+        return await self._repository.read_list(page, page_size)
