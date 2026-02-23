@@ -1,7 +1,7 @@
 from typing import Generic, TypeVar
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import func, inspect, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import NotFoundError
@@ -46,3 +46,14 @@ class BaseRepository(Generic[T]):
         await self.session.flush()
         await self.session.refresh(entity)
         return entity
+
+    async def update(self, id: UUID, /, **values: object) -> T:
+        existing = await self.read_by_id(id)
+        mapper = inspect(self.model)
+        updatable = {attr.key for attr in mapper.column_attrs} - {"id", "created_at"}
+        for key, value in values.items():
+            if key in updatable:
+                setattr(existing, key, value)
+        await self.session.flush()
+        await self.session.refresh(existing)
+        return existing

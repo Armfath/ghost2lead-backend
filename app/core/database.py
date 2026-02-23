@@ -25,3 +25,20 @@ async def get_db_transaction() -> AsyncGenerator[AsyncSession, None]:
         except Exception:
             await session.rollback()
             raise
+
+
+posthog_engine = create_async_engine(
+    configs.POSTHOG_DATABASE_URL,
+    echo=configs.DEBUG,
+)
+
+posthog_db_session_maker = async_sessionmaker(
+    posthog_engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+)
+
+
+async def get_posthog_db_session() -> AsyncGenerator[AsyncSession, None]:
+    async with posthog_db_session_maker() as session:
+        yield session

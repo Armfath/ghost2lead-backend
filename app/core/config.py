@@ -27,6 +27,11 @@ class Configs(BaseSettings):
 
     model_config = _base_config
 
+    # PostHog
+    POSTHOG_DATABASE_URL: str
+    POSTHOG_PROJECT_ID: int
+    POSTHOG_EVENTS_TABLE_NAME: str
+
     # CORS settings
     BACKEND_CORS_ORIGINS: list[str] | None = None
 

@@ -18,3 +18,6 @@ class BaseService(Generic[ModelType]):
 
     async def get_list(self, page: int, page_size: int) -> tuple[list[ModelType], int]:
         return await self._repository.read_list(page, page_size)
+
+    async def patch(self, id: UUID, /, **values: object) -> ModelType:
+        return await self._repository.update(id, **values)

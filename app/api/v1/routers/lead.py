@@ -4,7 +4,7 @@ from fastapi import APIRouter
 
 from app.core.dependencies import LeadServiceDep, PaginationParamsDep
 from app.schemas.base_schema import APISuccess, PaginationResponse
-from app.schemas.lead_schema import LeadCreate, LeadCreateResponse
+from app.schemas.lead_schema import LeadCreate, LeadCreateResponse, LeadResponse
 from app.util.api_response import to_paginated_success
 
 router = APIRouter(prefix="/leads", tags=["leads"])
@@ -19,7 +19,7 @@ async def create_lead(
     return APISuccess(data=lead)
 
 
-@router.get("", response_model=APISuccess[PaginationResponse[LeadCreateResponse]])
+@router.get("", response_model=APISuccess[PaginationResponse[LeadResponse]])
 async def get_leads(
     service: LeadServiceDep,
     params: PaginationParamsDep,
@@ -28,7 +28,7 @@ async def get_leads(
     return to_paginated_success(leads, total, params.page, params.page_size)
 
 
-@router.get("/{lead_id}", response_model=APISuccess[LeadCreateResponse])
+@router.get("/{lead_id}", response_model=APISuccess[LeadResponse])
 async def get_lead(
     lead_id: UUID,
     service: LeadServiceDep,
