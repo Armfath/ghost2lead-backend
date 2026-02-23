@@ -27,9 +27,6 @@ class Configs(BaseSettings):
 
     model_config = _base_config
 
-    # IP encryption key
-    IP_ENCRYPTION_KEY: str
-    
     # CORS settings
     BACKEND_CORS_ORIGINS: list[str] | None = None
 

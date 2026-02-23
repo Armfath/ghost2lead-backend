@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Depends, Query, Request
+from fastapi import Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import configs
@@ -11,20 +11,6 @@ from app.services.lead_service import LeadService
 
 # Dependency for getting database transactions.
 DBTransactionDep = Annotated[AsyncSession, Depends(get_db_transaction)]
-
-
-# Dependency for getting client IP.
-def get_client_ip(request: Request) -> str | None:
-    """Extract client IP from request headers."""
-    forwarded = request.headers.get("X-Forwarded-For")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    if request.client:
-        return request.client.host
-    return None
-
-
-ClientIPDep = Annotated[str | None, Depends(get_client_ip)]
 
 
 # Lead dependencies

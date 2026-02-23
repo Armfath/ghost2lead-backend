@@ -1,10 +1,11 @@
 from uuid import UUID
+
 from fastapi import APIRouter
 
-from app.util.api_response import to_paginated_success
-from app.core.dependencies import ClientIPDep, LeadServiceDep, PaginationParamsDep
+from app.core.dependencies import LeadServiceDep, PaginationParamsDep
 from app.schemas.base_schema import APISuccess, PaginationResponse
 from app.schemas.lead_schema import LeadCreate, LeadCreateResponse
+from app.util.api_response import to_paginated_success
 
 router = APIRouter(prefix="/leads", tags=["leads"])
 
@@ -13,9 +14,8 @@ router = APIRouter(prefix="/leads", tags=["leads"])
 async def create_lead(
     data: LeadCreate,
     service: LeadServiceDep,
-    ip_address: ClientIPDep,
 ):
-    lead = await service.get_or_create_lead(data, ip_address)
+    lead = await service.get_or_create_lead(data)
     return APISuccess(data=lead)
 
 
@@ -26,6 +26,7 @@ async def get_leads(
 ):
     leads, total = await service.get_list(params.page, params.page_size)
     return to_paginated_success(leads, total, params.page, params.page_size)
+
 
 @router.get("/{lead_id}", response_model=APISuccess[LeadCreateResponse])
 async def get_lead(

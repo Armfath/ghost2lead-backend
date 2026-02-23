@@ -10,4 +10,4 @@ class LeadCreate(BaseModel):
 
 
 class LeadCreateResponse(ModelBaseInfo, BaseModel):
-    has_registered: bool
+    pass
