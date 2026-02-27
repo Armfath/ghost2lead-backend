@@ -9,3 +9,6 @@ class Lead(BaseModel):
 
     last_processed_event_timestamp = Column(DateTime(timezone=True), nullable=True)
     behaviors = Column(JSONB, nullable=True)
+    profile = Column(JSONB, nullable=True)
+    actions = Column(JSONB, nullable=True)
+    enriched_at = Column(DateTime(timezone=True), nullable=True)

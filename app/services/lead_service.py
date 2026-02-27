@@ -1,10 +1,12 @@
+from datetime import datetime
 from uuid import UUID
 
 from app.api.utils import timestamp_to_str_or_none
 from app.models.lead import Lead
 from app.repository.lead_repository import LeadRepository
 from app.repository.posthog_event_repository import PostHogEventRepository
-from app.schemas.lead_schema import LeadCreate, LeadResponse
+from app.schemas.lead_schema import LeadBehavior, LeadCreate, LeadResponse
+from app.services.agent_service import AgentService
 from app.services.base_service import BaseService
 from app.util.enums import EventName, OrderBy
 
@@ -24,47 +26,15 @@ class LeadService(BaseService[Lead]):
             new_lead = Lead()
             return await self.add(new_lead)
 
-    async def get_by_id(self, lead_id: UUID) -> LeadResponse:
-        lead = await super().get_by_id(lead_id)
-        last_event = await self._event_repository.get_event(str(lead_id))
+    async def _get_lead_behaviors_with_last_event(
+        self, lead_id: str
+    ) -> tuple[dict | None, LeadBehavior | None]:
 
-        if (
-            last_event is None
-            or last_event["timestamp"] == lead.last_processed_event_timestamp
-        ):
-            return lead
-        else:
-            lead_behaviors = await self._get_lead_behaviors(str(lead_id))
-            lead = await self.patch(
-                lead_id,
-                behaviors=lead_behaviors,
-                last_processed_event_timestamp=last_event["timestamp"],
-            )
-            return lead
+        last_event = await self._event_repository.get_event(lead_id)
 
-    async def get_list(
-        self, page: int, page_size: int
-    ) -> tuple[list[LeadResponse], int]:
-        leads, total = await self.lead_repository.read_list(page, page_size)
-        for lead in leads:
-            last_event = await self._event_repository.get_event(str(lead.id))
+        if last_event is None:
+            return None, None
 
-            if (
-                last_event is None
-                or last_event["timestamp"] == lead.last_processed_event_timestamp
-            ):
-                continue
-            else:
-                lead_behaviors = await self._get_lead_behaviors(str(lead.id))
-                lead = await self.patch(
-                    lead.id,
-                    behaviors=lead_behaviors,
-                    last_processed_event_timestamp=last_event["timestamp"],
-                )
-                leads[leads.index(lead)] = lead
-        return leads, total
-
-    async def _get_lead_behaviors(self, lead_id: str) -> dict:
         exported_file_event = await self._event_repository.get_event(
             lead_id, EventName.EXPORTED_FILE, OrderBy.ASC
         )
@@ -100,4 +70,52 @@ class LeadService(BaseService[Lead]):
             "viewed_pricing": viewed_pricing,
         }
 
-        return behaviors_data
+        return last_event, behaviors_data
+
+    async def enrich_lead(self, lead_id: UUID) -> LeadResponse:
+        lead = await self.get_by_id(lead_id)
+
+        if lead.behaviors is None:
+            last_event, lead_behaviors = await self._get_lead_behaviors_with_last_event(
+                str(lead_id)
+            )
+            if last_event is None:
+                lead = await self.patch(lead_id, enriched_at=datetime.now())
+            else:
+                profile, actions = AgentService().run_agent(lead_behaviors)
+                lead = await self.patch(
+                    lead_id,
+                    behaviors=lead_behaviors,
+                    last_processed_event_timestamp=last_event.get("timestamp"),
+                    profile=profile.model_dump() if profile else None,
+                    actions=[a.model_dump() for a in actions] if actions else None,
+                    enriched_at=datetime.now(),
+                )
+        else:
+            last_event = await self._event_repository.get_event(str(lead_id))
+
+            if (
+                last_event is None
+                or last_event.get("timestamp") == lead.last_processed_event_timestamp
+            ):
+                lead = await self.patch(
+                    lead_id,
+                    enriched_at=datetime.now(),
+                )
+            else:
+                last_event, lead_behaviors = await self._get_lead_behaviors_with_last_event(
+                    str(lead_id)
+                )
+                if last_event is None:
+                    lead = await self.patch(lead_id, enriched_at=datetime.now())
+                else:
+                    profile, actions = AgentService().run_agent(lead_behaviors)
+                    lead = await self.patch(
+                        lead_id,
+                        behaviors=lead_behaviors,
+                        last_processed_event_timestamp=last_event.get("timestamp"),
+                        profile=profile.model_dump() if profile else None,
+                        actions=[a.model_dump() for a in actions] if actions else None,
+                        enriched_at=datetime.now(),
+                    )
+        return lead

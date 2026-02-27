@@ -1,0 +1,33 @@
+profiling_task:
+  description: |
+    You are a B2B sales analytics expert.
+    Raw data:
+    Behavior: {behavior}
+    Tasks:
+    1. Create a concise business profile (probable persona)
+    2. Infer the most probable objection
+    3. Assign confidence level (High/Medium/Low)
+    4. Highlight strongest signal
+  expected_output: |
+    JSON only:
+    {
+      "persona": "string",
+      "primary_objection": "string",
+      "strongest_signal": "string",
+      "confidence": "High|Medium|Low"
+    }
+  agent: profiling_agent
+
+action_task:
+  description: |
+    You are a growth consultant.
+    Use the business profile (persona, primary objection, strongest signal) from the previous task output.
+    Behavior: {behavior}
+    Suggest 1-2 concrete actions to improve conversion.
+    Max 2 actions. Be specific.
+  expected_output: |
+    JSON array only:
+    [
+      {"action": "specific action", "reasoning": "why this helps"}
+    ]
+  agent: action_agent

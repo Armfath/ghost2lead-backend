@@ -31,6 +31,9 @@ class Configs(BaseSettings):
     POSTHOG_DATABASE_URL: str
     POSTHOG_PROJECT_ID: int
     POSTHOG_EVENTS_TABLE_NAME: str
+    
+    # OpenAI
+    OPENAI_API_KEY: str
 
     # CORS settings
     BACKEND_CORS_ORIGINS: list[str] | None = None

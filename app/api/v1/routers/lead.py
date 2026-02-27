@@ -4,7 +4,11 @@ from fastapi import APIRouter
 
 from app.core.dependencies import LeadServiceDep, PaginationParamsDep
 from app.schemas.base_schema import APISuccess, PaginationResponse
-from app.schemas.lead_schema import LeadCreate, LeadCreateResponse, LeadResponse
+from app.schemas.lead_schema import (
+    LeadCreate,
+    LeadCreateResponse,
+    LeadResponse,
+)
 from app.util.api_response import to_paginated_success
 
 router = APIRouter(prefix="/leads", tags=["leads"])
@@ -34,4 +38,10 @@ async def get_lead(
     service: LeadServiceDep,
 ):
     lead = await service.get_by_id(lead_id)
+    return APISuccess(data=lead)
+
+
+@router.post("/{lead_id}/enrich", response_model=APISuccess[LeadResponse])
+async def enrich_lead(lead_id: UUID, service: LeadServiceDep):
+    lead = await service.enrich_lead(lead_id)
     return APISuccess(data=lead)
