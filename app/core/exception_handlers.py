@@ -1,4 +1,4 @@
-from fastapi import FastAPI, status
+from fastapi import FastAPI, HTTPException, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
@@ -9,6 +9,19 @@ from app.util.normalize_text import normalize_text
 
 
 def register_exception_handlers(app: FastAPI):
+    @app.exception_handler(HTTPException)
+    async def http_exception_handler(_, exc: HTTPException):
+        code_map = {
+            401: ErrorCode.UNAUTHORIZED,
+            403: ErrorCode.FORBIDDEN,
+            404: ErrorCode.NOT_FOUND,
+        }
+        error_code = code_map.get(exc.status_code, ErrorCode.BAD_REQUEST)
+        return JSONResponse(
+            status_code=exc.status_code,
+            content=APIError(error=error_code, message=exc.detail).model_dump(mode="json"),
+        )
+
     @app.exception_handler(APIException)
     async def api_exception_handler(_, exc: APIException):
         return JSONResponse(

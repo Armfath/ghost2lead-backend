@@ -41,6 +41,9 @@ class BaseRepository(Generic[T]):
             raise NotFoundError(self.model.__name__, id)
         return entity
 
+    async def find_by_id(self, id: UUID) -> T | None:
+        return await self.session.get(self.model, id)
+
     async def create(self, entity: T) -> T:
         self.session.add(entity)
         await self.session.flush()

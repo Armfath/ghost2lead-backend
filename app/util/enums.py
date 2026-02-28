@@ -11,3 +11,8 @@ class EventName(str, Enum):
 class OrderBy(str, Enum):
     ASC = "ASC"
     DESC = "DESC"
+
+
+class UserType(str, Enum):
+    CUSTOMER = "customer"
+    ADMIN = "admin"

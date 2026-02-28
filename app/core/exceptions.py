@@ -33,6 +33,10 @@ class UnauthorizedError(APIException):
     error_code = ErrorCode.UNAUTHORIZED
     message = "User is not authorized to access this resource"
 
+    def __init__(self, message: str | None = None):
+        if message is not None:
+            self.message = message
+
 
 class BadRequestError(APIException):
     status_code = status.HTTP_400_BAD_REQUEST

@@ -44,5 +44,36 @@ class Configs(BaseSettings):
     PAGE_SIZE_MIN: int = 1
     PAGE_SIZE_MAX: int = 100
 
+    # JWT / Auth settings
+    JWT_SECRET: str = "change-me-in-production"
+    JWT_ALGO: str = "HS256"
+    JWT_EXPIRE_DAYS: int = 7
+
+    # Redis (required for OTP auth, token blacklist, Celery)
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
+    REDIS_DB_OTP: int = 1
+    REDIS_DB_TOKEN_BLACKLIST: int = 2
+    REDIS_DB_CELERY: int = 0
+
+    # OTP settings
+    OTP_TTL_SECONDS: int = 600  # 10 minutes
+    OTP_LENGTH: int = 6
+
+
+    # Mail (for OTP and notifications)
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_FROM: str = "noreply@example.com"
+    MAIL_FROM_NAME: str = APP_NAME
+    MAIL_SERVER: str = "smtp.gmail.com"
+    MAIL_PORT: int = 587
+    MAIL_STARTTLS: bool = True
+    MAIL_SSL_TLS: bool = False
+    TEMPLATE_DIR: str = "template"
+
+    def redis_url(self, db: int) -> str:
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{db}"
+
 
 configs = Configs()
