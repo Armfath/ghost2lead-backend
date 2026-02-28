@@ -1,0 +1,11 @@
+[project]
+name = "ghost2lead-worker"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "celery>=5.4.0",
+    "redis>=5.0.0",
+    "fastapi-mail>=1.4.0",
+    "asgiref>=3.7.0",
+    "pydantic-settings>=2.12.0",
+]
