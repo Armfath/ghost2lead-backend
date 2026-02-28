@@ -75,9 +75,9 @@ async def get_user_token(
 ) -> dict[str, Any]:
     token_data = decode_token(token)
     if not token_data:
-        raise UnauthorizedError("Invalid token")
+        raise UnauthorizedError()
     if await is_jti_blacklisted(token_data.get("jti", "")):
-        raise UnauthorizedError("Token has been revoked")
+        raise UnauthorizedError()
     return token_data
 
 
@@ -87,7 +87,7 @@ async def get_current_user(
 ) -> User:
     user = await user_repo.find_by_id(UUID(token_data["sub"]))
     if not user:
-        raise UnauthorizedError("User not found")
+        raise UnauthorizedError()
     return user
 
 
@@ -100,7 +100,7 @@ async def get_admin_user(
     from app.util.enums import UserType
 
     if user.user_type != UserType.ADMIN:
-        raise ForbiddenError("Admin access required")
+        raise ForbiddenError()
     return user
 
 
