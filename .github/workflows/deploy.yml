@@ -77,10 +77,11 @@ jobs:
             mkdir -p $HOME/projects/${{ github.event.repository.name }}
             cd $HOME/projects/${{ github.event.repository.name }}
             if [ ! -d .git ]; then
-              git clone https://github.com/${{ github.repository }}.git .
-            else
-              git fetch origin main && git reset --hard origin/main
+              git init
+              git remote add origin https://github.com/${{ github.repository }}.git
             fi
+            git fetch origin main
+            git reset --hard origin/main
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             export COMPOSE_IMAGE_BASE=${{ steps.meta.outputs.image_base }}
             docker ps -q --filter "name=${{ github.event.repository.name }}" | xargs -r docker rm -f
