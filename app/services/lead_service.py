@@ -2,13 +2,15 @@ from datetime import datetime
 from uuid import UUID
 
 from app.api.utils import timestamp_to_str_or_none
+from app.core.exceptions import ForbiddenError
 from app.models.lead import Lead
+from app.models.user import User
 from app.repository.lead_repository import LeadRepository
 from app.repository.posthog_event_repository import PostHogEventRepository
 from app.schemas.lead_schema import LeadBehavior, LeadCreate, LeadResponse
 from app.services.agent_service import AgentService
 from app.services.base_service import BaseService
-from app.util.enums import EventName, OrderBy
+from app.util.enums import EventName, OrderBy, UserType
 
 
 class LeadService(BaseService[Lead]):
@@ -25,6 +27,12 @@ class LeadService(BaseService[Lead]):
         else:
             new_lead = Lead()
             return await self.add(new_lead)
+
+    async def get_lead(self, lead_id: UUID, user: User) -> Lead:
+        lead = await self.get_by_id(lead_id)
+        if user.user_type == UserType.CUSTOMER and user.lead_id != lead_id:
+            raise ForbiddenError("Access denied to this lead")
+        return lead
 
     async def _get_lead_behaviors_with_last_event(
         self, lead_id: str
