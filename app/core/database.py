@@ -30,6 +30,8 @@ async def get_db_transaction() -> AsyncGenerator[AsyncSession, None]:
 posthog_engine = create_async_engine(
     configs.POSTHOG_DATABASE_URL,
     echo=configs.DEBUG,
+    pool_pre_ping=True,
+    pool_recycle=300,  
 )
 
 posthog_db_session_maker = async_sessionmaker(
