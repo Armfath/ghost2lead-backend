@@ -41,13 +41,17 @@ class UserService(BaseService[User]):
 
         user = await self._user_repository.get_by_email(email)
         if not user:
-            lead = await self._lead_repository.read_by_id(lead_id)  # ensure lead exists
+            lead = await self._lead_repository.find_by_id(lead_id)
             user = User(
                 email=email,
                 user_type=UserType.CUSTOMER,
                 lead=lead,
             )
             user = await self._user_repository.create(user)
+        elif lead_id:
+            lead = await self._lead_repository.read_by_id(lead_id)
+            user.lead = lead
+            user = await self._user_repository.update(user.id, lead=lead)
 
         return generate_token(data={"sub": str(user.id)})
 

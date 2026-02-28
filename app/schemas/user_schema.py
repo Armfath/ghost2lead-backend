@@ -29,7 +29,7 @@ class RequestOtpRequest(BaseModel):
 class VerifyOtpRequest(BaseModel):
     email: EmailStr
     otp: str = Field(min_length=1, max_length=10)
-    lead_id: UUID  # Required: customers are leads first
+    lead_id: UUID | None = None
 
 
 class TokenData(BaseModel):
