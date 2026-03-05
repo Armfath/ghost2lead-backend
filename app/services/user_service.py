@@ -33,13 +33,14 @@ class UserService(BaseService[User]):
         await set_otp(email, otp)
         send_otp_email.delay(email, otp)
 
-    async def verify_otp(self, email: str, otp: str, lead_id: UUID) -> str:
+    async def verify_otp(self, email: str, otp: str, lead_id: UUID) -> tuple[str, bool]:
         stored = await get_otp(email)
         if not stored or stored != otp:
             raise UnauthorizedError("Invalid or expired OTP")
         await delete_otp(email)
 
         user = await self._user_repository.get_by_email(email)
+        is_new_user = user is None
         if not user:
             lead = await self._lead_repository.find_by_id(lead_id)
             user = User(
@@ -53,7 +54,8 @@ class UserService(BaseService[User]):
             user.lead = lead
             user = await self._user_repository.update(user.id, lead=lead)
 
-        return generate_token(data={"sub": str(user.id)})
+        token = generate_token(data={"sub": str(user.id)})
+        return token, is_new_user
 
     async def update_user(self, user: User, data: UserUpdate) -> UserRead:
         if data.email is not None:

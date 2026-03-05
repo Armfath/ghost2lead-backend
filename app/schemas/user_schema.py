@@ -35,3 +35,4 @@ class VerifyOtpRequest(BaseModel):
 class TokenData(BaseModel):
     access_token: str
     token_type: str
+    is_new_user: bool
