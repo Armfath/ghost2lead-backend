@@ -27,9 +27,16 @@ async def request_otp(body: RequestOtpRequest, service: UserServiceDep):
 
 @router.post("/verify-otp", response_model=APISuccess[TokenData])
 async def verify_otp(body: VerifyOtpRequest, service: UserServiceDep):
-    token, is_new_user = await service.verify_otp(body.email, body.otp, body.lead_id)
+    token, is_new_user, is_admin = await service.verify_otp(
+        body.email, body.otp, body.lead_id
+    )
     return APISuccess(
-        data=TokenData(access_token=token, token_type="jwt", is_new_user=is_new_user)
+        data=TokenData(
+            access_token=token,
+            token_type="jwt",
+            is_new_user=is_new_user,
+            is_admin=is_admin,
+        )
     )
 
 

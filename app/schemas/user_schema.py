@@ -36,3 +36,4 @@ class TokenData(BaseModel):
     access_token: str
     token_type: str
     is_new_user: bool
+    is_admin: bool
