@@ -50,10 +50,7 @@ class LeadService(BaseService[Lead]):
             lead_id, EventName.SIGNED_UP, OrderBy.ASC
         )
         first_visit_event = await self._event_repository.get_event(
-            lead_id, EventName.VISIT, OrderBy.ASC
-        )
-        last_visit_event = await self._event_repository.get_event(
-            lead_id, EventName.VISIT, OrderBy.DESC
+            lead_id, None, OrderBy.ASC
         )
         homepage_visits = await self._event_repository.count_by_event(
             lead_id, EventName.VISIT
@@ -67,7 +64,7 @@ class LeadService(BaseService[Lead]):
         )
         signed_up_at = signed_up_event["timestamp"] if signed_up_event else None
         first_visit_at = first_visit_event["timestamp"] if first_visit_event else None
-        last_visit_at = last_visit_event["timestamp"] if last_visit_event else None
+        last_visit_at = last_event["timestamp"] if last_event else None
 
         behaviors_data = {
             "exported_file_at": timestamp_to_str_or_none(exported_file_at),
@@ -111,8 +108,8 @@ class LeadService(BaseService[Lead]):
                     enriched_at=datetime.now(),
                 )
             else:
-                last_event, lead_behaviors = await self._get_lead_behaviors_with_last_event(
-                    str(lead_id)
+                last_event, lead_behaviors = (
+                    await self._get_lead_behaviors_with_last_event(str(lead_id))
                 )
                 if last_event is None:
                     lead = await self.patch(lead_id, enriched_at=datetime.now())
