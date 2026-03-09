@@ -10,12 +10,14 @@ from app.core.redis_client import is_jti_blacklisted
 from app.models.user import User
 from app.repository.lead_repository import LeadRepository
 from app.repository.posthog_event_repository import PostHogEventRepository
+from app.repository.stats_repository import StatsRepository
 from app.repository.user_repository import UserRepository
 from app.core.exceptions import ForbiddenError, UnauthorizedError
 from app.schemas.base_schema import FindBase
 from app.security.oauth2 import oauth2_scheme
 from app.security.jwt import decode_token
 from app.services.lead_service import LeadService
+from app.services.stats_service import StatsService
 from app.services.user_service import UserService
 
 # Dependency for getting database transactions.
@@ -68,6 +70,20 @@ def get_user_service(
 
 UserRepositoryDep = Annotated[UserRepository, Depends(get_user_repository)]
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]
+
+
+def get_stats_repository(session: DBTransactionDep) -> StatsRepository:
+    return StatsRepository(session)
+
+
+def get_stats_service(
+    repo: Annotated[StatsRepository, Depends(get_stats_repository)],
+) -> StatsService:
+    return StatsService(repo)
+
+
+StatsRepositoryDep = Annotated[StatsRepository, Depends(get_stats_repository)]
+StatsServiceDep = Annotated[StatsService, Depends(get_stats_service)]
 
 
 async def get_user_token(
